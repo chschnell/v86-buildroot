@@ -59,7 +59,7 @@ linux-menuconfig: check-project
 
 linux-saveconfig: check-project
 	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) linux-savedefconfig
-	cp $(BUILDROOT_BUILD_DIR)/build/linux-custom/defconfig board/$(ACTIVE_PROJECT)/linux.config
+	cp $(BUILDROOT_BUILD_DIR)/build/linux-6.8.12/defconfig board/$(ACTIVE_PROJECT)/linux.config
 
 linux-rebuild: check-project
 	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) linux-rebuild
