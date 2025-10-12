@@ -1,15 +1,15 @@
 # v86-buildroot
-Buildroot customized for v86 emulator
+Buildroot customized for the [v86 emulator](https://github.com/copy/v86/tree/master).
 
 Features:
 
-* Top-level Makefile for simple, reproducable builds
-* Out-of-tree build, the source tree of buildroot remains unmodified
-* Customized for the [v86 emulator](https://github.com/copy/v86/tree/master)
+* Top-level Makefile for simple, reproducible builds
+* Keeps Buildroot source tree, v86 customizations and build artifacts in separate directories
+* Out-of-tree build, the Buildroot source tree always remains unmodified
 
 ## Installation instructions
 
-Change the current working directory to your local working copy of this repository, then download and unpack the buildroot source tree using:
+Change the current working directory to your local working copy of this repository, then download and unpack the Buildroot source tree using:
 
 ```bash
 make bootstrap
@@ -17,38 +17,36 @@ make bootstrap
 
 ## Build instructions
 
-First, define shell environment variables (needed once per terminal session):
-
-```bash
-source set_env.sh
-```
-
-Use `make help` for top-level Makefile commands, examples:
+Use `make help` for help about all top-level Makefile commands, examples:
 
 ```bash
 # optional, cleanup all previous build artifacts
 make clean
 
-# configure buildroot, required once after fresh installation or make clean
+# configure Buildroot, required once after fresh installation or make clean
 make buildroot-defconfig
 
-# compile and link buildroot into build/v86/images/bzImage
+# compile and link Buildroot into build/v86/images/bzImage
 make all
 ```
 
 ## Details
 
-### Configuring buildroot and linux
+### Configuring Buildroot and Linux
 
-To change the configuration of buildroot or linux use:
+To change the configuration of Buildroot or Linux use:
 
-* `make buildroot-menuconfig`
-* `make linux-menuconfig`
+```bash
+make buildroot-menuconfig
+make linux-menuconfig
+```
 
 To save configurations use:
 
-* `make buildroot-saveconfig`
-* `make linux-savedefconfig`
+```bash
+make buildroot-saveconfig
+make linux-savedefconfig
+```
 
 ### Implementation
 
@@ -56,7 +54,7 @@ To save configurations use:
 * the Buildroot `.config` file is therefore `configs/v86_defconfig`, it defines:
   * the Linux `.config` file as `board/v86/linux.config`
   * the root file system overlay as the tree below `board/v86/rootfs_overlay/`
-* files `Config.in`, `external.desc` and `external.mk` are required by buildroot for an out-of-tree build
+* files `Config.in`, `external.desc` and `external.mk` are required by Buildroot for an out-of-tree build
 
 ## Links
 

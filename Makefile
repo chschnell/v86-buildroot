@@ -1,3 +1,7 @@
+# Global Top-level Makefile Configuration
+export BR2_EXTERNAL := $(CURDIR)
+export ACTIVE_PROJECT := v86
+
 # Project Configuration
 PROJECTS_DIR := projects
 CONFIG_DIR := $(PROJECTS_DIR)/configs
