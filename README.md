@@ -50,8 +50,12 @@ make linux-savedefconfig
 
 ### Implementation
 
-* the board name used for Buildroot is **`v86`** (stored in `ACTIVE_PROJECT` in the top-level Makefile)
-* the Buildroot `.config` file is therefore `configs/v86_defconfig`, it defines:
+* directories:
+  * buildroot source directory (created by `make bootstrap`): `buildroot/`
+  * customization directories: `board/` and `configs/`
+  * build directory (created by `make`): `build/`
+* the Buildroot board name used is **`v86`** (stored in `ACTIVE_PROJECT` in the top-level Makefile)
+* the Buildroot `.config` file is `configs/v86_defconfig`, it defines:
   * the Linux `.config` file as `board/v86/linux.config`
   * the root file system overlay as the tree below `board/v86/rootfs_overlay/`
 * files `Config.in`, `external.desc` and `external.mk` are required by Buildroot for an out-of-tree build
