@@ -1,0 +1,15 @@
+#!/bin/sh
+
+#udhcpc
+mount -a
+
+echo 0 > /proc/sys/kernel/printk
+
+PS1='\W% '
+HOME='/root'
+
+echo
+echo "Enable networking using 'udhcpc'"
+echo "Files send via emulator appear in /mnt/"
+
+cd ~

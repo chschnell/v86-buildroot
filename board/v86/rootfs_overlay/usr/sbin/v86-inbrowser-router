@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# /usr/sbin/v86-inbrowser-router
+# Make host act as the IPv4 router, DHCP and DNS server in a v86 inbrowser network.
+#
+# USE
+#
+#   v86-inbrowser-router [HOSTNAME]
+#
+# HOSTNAME is the DNS name that the host will be assigned to, defaults to "router" if unspecified.
+#
+# Network configuration:
+#   Router:      192.168.86.1
+#   DHCP server: 192.168.86.1, range: 192.168.86.2 ... 192.168.86.254
+#   DNS server:  192.168.86.1, names "HOSTNAME" and "HOSTNAME.v86.local" resolve to 192.168.86.1
+#   DNS domain:  v86.local
+#
+# Note:
+#   In other VMs, use "udhcpc -F NAME" to get a DHCP lease with assigned DNS name NAME.
+
+DOMAIN="v86.local"
+
+HOSTNAME="router"
+if [ -n "$1" ]; then
+    HOSTNAME="$1"
+fi
+
+# bring up 127.0.0.1
+ip link set lo up
+
+# bring up eth0, bind to 192.168.86.1
+ifconfig eth0 up arp 192.168.86.1
+
+# setup /etc/hosts
+echo -e "127.0.0.1    localhost\n192.168.86.1 $HOSTNAME $HOSTNAME.$DOMAIN" > /etc/hosts
+
+# setup /etc/resolv.conf
+echo -e "nameserver 192.168.86.1\ndomain $DOMAIN\nsearch $DOMAIN" > /etc/resolv.conf
+
+# launch DHCP/DNS server (uses /etc/hosts and resolv.conf)
+dnsmasq --no-ping \
+    --listen-address=192.168.86.1 \
+    --dhcp-range=192.168.86.2,192.168.86.254,255.255.255.0,86400s \
+    --dhcp-option=option:router,192.168.86.1 \
+    --dhcp-option=option:dns-server,192.168.86.1 \
+    --dhcp-sequential-ip \
+    --domain=$DOMAIN
