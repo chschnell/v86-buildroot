@@ -1,3 +1,4 @@
 /build/
 /buildroot/
 /buildroot-*.tar.gz
+/v86-buildroot-*.tar.bz2
