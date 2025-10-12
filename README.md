@@ -57,6 +57,7 @@ make linux-savedefconfig
 * the Buildroot board name used is **`v86`** (stored in `ACTIVE_PROJECT` in the top-level Makefile)
 * the Buildroot `.config` file is `configs/v86_defconfig`, it defines:
   * the Linux `.config` file as `board/v86/linux.config`
+  * the Busybox `.config` file as `board/v86/busybox.config`
   * the root file system overlay as the tree below `board/v86/rootfs_overlay/`
 * files `Config.in`, `external.desc` and `external.mk` are required by Buildroot for an out-of-tree build
 

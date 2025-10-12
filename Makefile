@@ -64,6 +64,16 @@ linux-saveconfig: check-project
 linux-rebuild: check-project
 	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) linux-rebuild
 
+# Busybox targets
+busybox-menuconfig: check-project
+	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) busybox-menuconfig
+
+busybox-saveconfig: check-project
+	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) busybox-update-config
+
+busybox-rebuild: check-project
+	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) busybox-rebuild
+
 # bootstrap and release special targets
 buildroot-2024.05.2.tar.gz:
 	curl -LO https://buildroot.org/downloads/buildroot-2024.05.2.tar.gz
@@ -127,6 +137,9 @@ help:
 	@echo "  linux-menuconfig     : Configure Linux"
 	@echo "  linux-saveconfig     : Save Linux defconfig to board/$(ACTIVE_PROJECT)/linux.config"
 	@echo "  linux-rebuild        : Rebuild Linux"
+	@echo "  busybox-menuconfig   : Configure Busybox"
+	@echo "  busybox-saveconfig   : Save Busybox defconfig to board/$(ACTIVE_PROJECT)/busybox.config"
+	@echo "  busybox-rebuild      : Rebuild Busybox"
 	@echo ""
 	@echo "Package-Specific Targets (Dynamically Generated):"
 	@$(foreach pkg,$(PACKAGE_NAMES), echo "    buildroot-$(pkg)-build    : Build package '$(pkg)'";)
@@ -145,7 +158,8 @@ help:
 .PHONY: check-project \
 	buildroot-defconfig buildroot-menuconfig buildroot-saveconfig \
 	buildroot-build buildroot-clean buildroot-dirclean \
-	bootstrap release \
 	linux-menuconfig linux-saveconfig linux-rebuild \
+	busybox-menuconfig busybox-saveconfig busybox-rebuild \
+	bootstrap release \
 	$(foreach pkg,$(PACKAGE_NAMES),buildroot-$(pkg)-build buildroot-$(pkg)-rebuild buildroot-$(pkg)-clean buildroot-$(pkg)-dirclean) \
 	 clean dirclean rebuild help
