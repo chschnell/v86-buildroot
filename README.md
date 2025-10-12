@@ -42,6 +42,28 @@ make buildroot-defconfig
 make all
 ```
 
+## Details
+
+### Configuring buildroot and linux
+
+To change the configuration of buildroot or linux use:
+
+* `make buildroot-menuconfig`
+* `make linux-menuconfig`
+
+To save configurations use:
+
+* `make buildroot-saveconfig`
+* `make linux-savedefconfig`
+
+### Implementation
+
+* the board name used for Buildroot is **`v86`** (stored in `ACTIVE_PROJECT` in the top-level Makefile)
+* the Buildroot `.config` file is therefore `configs/v86_defconfig`, it defines:
+  * the Linux `.config` file as `board/v86/linux.config`
+  * the root file system overlay as the tree below `board/v86/rootfs_overlay/`
+* files `external.desc`, `Config.in` and `external.mk` are required by buildroot for an out-of-tree build
+
 ## Links
 
 * [The Buildroot user manual](https://buildroot.org/downloads/manual/manual.html)
