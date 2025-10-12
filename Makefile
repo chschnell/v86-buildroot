@@ -1,4 +1,11 @@
-# Global Top-level Makefile Configuration
+#
+# Makefile
+# v86-buildroot top-level Makefile
+#
+# Based off: https://eerdemsimsek.medium.com/setting-up-buildroot-out-of-tree-folder-structure-for-raspberry-pi-4b-fbd9765c0206
+#
+
+# Top-level Makefile Configuration, visible to recursive invocations of make
 export BR2_EXTERNAL := $(CURDIR)
 export ACTIVE_PROJECT := v86
 
@@ -16,7 +23,7 @@ BUILDROOT_SRC_DIR := buildroot
 # Centralized Output Directory Option
 BUILDROOT_O_OPTION := O=../$(BUILDROOT_BUILD_DIR)
 
-# Check if the ACTIVE_PROJECT is set and the config directory exists
+# Check if ACTIVE_PROJECT is set and the config directory exists
 check-project:
 	@echo "Active Project: '$(ACTIVE_PROJECT)'"
 	@if [ -z "$(ACTIVE_PROJECT)" ]; then \
@@ -48,14 +55,14 @@ buildroot-dirclean: check-project
 
 # Linux kernel targets
 linux-menuconfig: check-project
-	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) BR2_EXTERNAL=$(BR2_EXTERNAL) linux-menuconfig
+	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) linux-menuconfig
 
 linux-saveconfig: check-project
-	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) BR2_EXTERNAL=$(BR2_EXTERNAL) linux-savedefconfig
+	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) linux-savedefconfig
 	cp $(BUILDROOT_BUILD_DIR)/build/linux-custom/defconfig board/$(ACTIVE_PROJECT)/linux.config
 
 linux-rebuild: check-project
-	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) BR2_EXTERNAL=$(BR2_EXTERNAL) linux-rebuild
+	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) linux-rebuild
 
 # bootstrap and release targets
 buildroot-2024.05.2.tar.gz:
@@ -76,7 +83,7 @@ release: check-project
 	fi
 	tar -C build/v86/images --transform='flags=r;s|bzImage|buildroot-bzimage68_v86.bin|' -cjf v86-buildroot-$(RELEASE_VER).tar.bz2 bzImage
 
-# --- Dynamic Package Targets ---
+# --- Dynamic Package Targets (currently unused) ---
 
 # Find all package makefiles in the external tree
 PACKAGE_MK_FILES := $(wildcard $(BR2_EXTERNAL)/package/*/*.mk)
@@ -86,13 +93,13 @@ PACKAGE_NAMES := $(basename $(notdir $(PACKAGE_MK_FILES)))
 
 # Generate targets for each package
 $(foreach pkg,$(PACKAGE_NAMES),\
-	$(eval buildroot-$(pkg)-build: check-project ; $(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) BR2_EXTERNAL=$(BR2_EXTERNAL) $(pkg)))
+	$(eval buildroot-$(pkg)-build: check-project ; $(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) $(pkg)))
 $(foreach pkg,$(PACKAGE_NAMES),\
-	$(eval buildroot-$(pkg)-rebuild: check-project ; $(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) BR2_EXTERNAL=$(BR2_EXTERNAL) $(pkg)-rebuild))
+	$(eval buildroot-$(pkg)-rebuild: check-project ; $(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) $(pkg)-rebuild))
 $(foreach pkg,$(PACKAGE_NAMES),\
-	$(eval buildroot-$(pkg)-clean: check-project ; $(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) BR2_EXTERNAL=$(BR2_EXTERNAL) $(pkg)-clean))
+	$(eval buildroot-$(pkg)-clean: check-project ; $(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) $(pkg)-clean))
 $(foreach pkg,$(PACKAGE_NAMES),\
-	$(eval buildroot-$(pkg)-dirclean: check-project ; $(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) BR2_EXTERNAL=$(BR2_EXTERNAL) $(pkg)-dirclean))
+	$(eval buildroot-$(pkg)-dirclean: check-project ; $(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) $(pkg)-dirclean))
 
 # Combined Targets
 clean: check-project buildroot-clean
