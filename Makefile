@@ -53,6 +53,14 @@ linux-saveconfig: check-project
 linux-rebuild: check-project
 	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) BR2_EXTERNAL=$(BR2_EXTERNAL) linux-rebuild
 
+# release target
+release: check-project
+	@if [ -z "$(RELEASE_VER)" ]; then \
+	 echo "Error: RELEASE_VER environment variable is not set, example: \"1.0.0\"."; \
+	 exit 1; \
+	fi
+	tar -C build/v86/images --transform='flags=r;s|bzImage|buildroot-bzimage68_v86.bin|' -cjf v86-buildroot-$(RELEASE_VER).tar.bz2 bzImage
+
 # --- Dynamic Package Targets ---
 
 # Find all package makefiles in the external tree
@@ -97,6 +105,7 @@ help:
 	@echo "  linux-menuconfig     : Configure Linux"
 	@echo "  linux-saveconfig     : Save Linux defconfig to board/$(ACTIVE_PROJECT)/linux.config"
 	@echo "  linux-rebuild        : Rebuild Linux"
+	@echo "  release              : Create release archive, needs environment variable RELEASE_VER"
 	@echo ""
 	@echo "  Package-Specific Targets (Dynamically Generated):"
 	@$(foreach pkg,$(PACKAGE_NAMES), echo "    buildroot-$(pkg)-build    : Build package '$(pkg)'";)
@@ -111,5 +120,6 @@ help:
 
 .PHONY: check-project buildroot-defconfig buildroot-menuconfig buildroot-saveconfig \
     buildroot-build buildroot-clean buildroot-dirclean \
+    release \
     $(foreach pkg,$(PACKAGE_NAMES),buildroot-$(pkg)-build buildroot-$(pkg)-rebuild buildroot-$(pkg)-clean buildroot-$(pkg)-dirclean) \
      clean dirclean rebuild help
