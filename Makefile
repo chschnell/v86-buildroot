@@ -42,14 +42,11 @@ buildroot-clean: check-project
 buildroot-dirclean: check-project
 	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) distclean
 
-buildroot-delete-build:
-	rm -rf $(BUILD_OUTPUT_DIR)
-
 # Linux kernel targets
 linux-menuconfig: check-project
 	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) BR2_EXTERNAL=$(BR2_EXTERNAL) linux-menuconfig
 
-linux-savedefconfig: check-project
+linux-saveconfig: check-project
 	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) BR2_EXTERNAL=$(BR2_EXTERNAL) linux-savedefconfig
 	cp $(BUILDROOT_BUILD_DIR)/build/linux-custom/defconfig board/$(ACTIVE_PROJECT)/linux.config
 
@@ -90,13 +87,16 @@ help:
 	@echo "Usage: make <target>"
 	@echo ""
 	@echo "Targets:"
-	@echo "  all                   : Build Buildroot, including all enabled packages"
-	@echo "  buildroot-defconfig   : Generate .config using the specified defconfig"
-	@echo "  buildroot-menuconfig  : Configure Buildroot"
-	@echo "  buildroot-saveconfig  : Save Buildroot defconfig"
-	@echo "  buildroot-build       : Build Buildroot"
-	@echo "  buildroot-clean       : Clean Buildroot build artifacts"
-	@echo "  buildroot-dirclean    : Distclean Buildroot (removes downloads and build dirs)"
+	@echo "  all                  : Build Buildroot, including all enabled packages"
+	@echo "  buildroot-defconfig  : Generate .config using the specified defconfig"
+	@echo "  buildroot-menuconfig : Configure Buildroot"
+	@echo "  buildroot-saveconfig : Save Buildroot defconfig"
+	@echo "  buildroot-build      : Build Buildroot"
+	@echo "  buildroot-clean      : Clean Buildroot build artifacts"
+	@echo "  buildroot-dirclean   : Distclean Buildroot (removes downloads and build dirs)"
+	@echo "  linux-menuconfig     : Configure Linux"
+	@echo "  linux-saveconfig     : Save Linux defconfig to board/$(ACTIVE_PROJECT)/linux.config"
+	@echo "  linux-rebuild        : Rebuild Linux"
 	@echo ""
 	@echo "  Package-Specific Targets (Dynamically Generated):"
 	@$(foreach pkg,$(PACKAGE_NAMES), echo "    buildroot-$(pkg)-build    : Build package '$(pkg)'";)
@@ -104,10 +104,10 @@ help:
 	@$(foreach pkg,$(PACKAGE_NAMES), echo "    buildroot-$(pkg)-clean    : Clean package '$(pkg)' build artifacts";)
 	@$(foreach pkg,$(PACKAGE_NAMES), echo "    buildroot-$(pkg)-dirclean : Distclean package '$(pkg)'";)
 	@echo ""
-	@echo "  clean                 : Clean the entire project (same as buildroot-clean)"
-	@echo "  dirclean              : Distclean the entire project (same as buildroot-dirclean)"
-	@echo "  rebuild               : Perform a dirclean followed by a full build"
-	@echo "  help                  : Display this help message"
+	@echo "  clean                : Clean the entire project (same as buildroot-clean)"
+	@echo "  dirclean             : Distclean the entire project (same as buildroot-dirclean)"
+	@echo "  rebuild              : Perform a dirclean followed by a full build"
+	@echo "  help                 : Display this help message"
 
 .PHONY: check-project buildroot-defconfig buildroot-menuconfig buildroot-saveconfig \
     buildroot-build buildroot-clean buildroot-dirclean \
