@@ -53,7 +53,18 @@ linux-saveconfig: check-project
 linux-rebuild: check-project
 	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) BR2_EXTERNAL=$(BR2_EXTERNAL) linux-rebuild
 
-# release target
+# bootstrap and release targets
+buildroot-2024.05.2.tar.gz:
+	curl -LO https://buildroot.org/downloads/buildroot-2024.05.2.tar.gz
+
+bootstrap: buildroot-2024.05.2.tar.gz
+	@if [ -d buildroot ]; then \
+	 echo "Error: Directory buildroot already exists."; \
+	 exit 1; \
+	fi
+	mkdir buildroot
+	tar xfz buildroot-2024.05.2.tar.gz -C buildroot --strip-components=1
+
 release: check-project
 	@if [ -z "$(RELEASE_VER)" ]; then \
 	 echo "Error: RELEASE_VER environment variable is not set, example: \"1.0.0\"."; \
@@ -105,6 +116,7 @@ help:
 	@echo "  linux-menuconfig     : Configure Linux"
 	@echo "  linux-saveconfig     : Save Linux defconfig to board/$(ACTIVE_PROJECT)/linux.config"
 	@echo "  linux-rebuild        : Rebuild Linux"
+	@echo "  bootstrap            : Download buildroot source archive and extract into buildroot/"
 	@echo "  release              : Create release archive, needs environment variable RELEASE_VER"
 	@echo ""
 	@echo "  Package-Specific Targets (Dynamically Generated):"
@@ -119,7 +131,7 @@ help:
 	@echo "  help                 : Display this help message"
 
 .PHONY: check-project buildroot-defconfig buildroot-menuconfig buildroot-saveconfig \
-    buildroot-build buildroot-clean buildroot-dirclean \
-    release \
-    $(foreach pkg,$(PACKAGE_NAMES),buildroot-$(pkg)-build buildroot-$(pkg)-rebuild buildroot-$(pkg)-clean buildroot-$(pkg)-dirclean) \
-     clean dirclean rebuild help
+	buildroot-build buildroot-clean buildroot-dirclean \
+	bootstrap release \
+	$(foreach pkg,$(PACKAGE_NAMES),buildroot-$(pkg)-build buildroot-$(pkg)-rebuild buildroot-$(pkg)-clean buildroot-$(pkg)-dirclean) \
+	 clean dirclean rebuild help

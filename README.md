@@ -9,16 +9,10 @@ Features:
 
 ## Installation instructions
 
-Change the current working directory to your local working copy of this repository, then download and unpack the buildroot source tree:
+Change the current working directory to your local working copy of this repository, then download and unpack the buildroot source tree using:
 
 ```bash
-# change CWD to this repository
-cd v86-buildroot
-
-# download and unpack buildroot 2024.05.2 into ./buildroot
-curl -LO https://buildroot.org/downloads/buildroot-2024.05.2.tar.gz
-mkdir buildroot
-tar xfz buildroot-2024.05.2.tar.gz -C buildroot --strip-components=1
+make bootstrap
 ```
 
 ## Build instructions
@@ -62,7 +56,7 @@ To save configurations use:
 * the Buildroot `.config` file is therefore `configs/v86_defconfig`, it defines:
   * the Linux `.config` file as `board/v86/linux.config`
   * the root file system overlay as the tree below `board/v86/rootfs_overlay/`
-* files `external.desc`, `Config.in` and `external.mk` are required by buildroot for an out-of-tree build
+* files `Config.in`, `external.desc` and `external.mk` are required by buildroot for an out-of-tree build
 
 ## Links
 
