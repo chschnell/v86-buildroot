@@ -64,7 +64,7 @@ linux-saveconfig: check-project
 linux-rebuild: check-project
 	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) linux-rebuild
 
-# bootstrap and release targets
+# bootstrap and release special targets
 buildroot-2024.05.2.tar.gz:
 	curl -LO https://buildroot.org/downloads/buildroot-2024.05.2.tar.gz
 
@@ -127,22 +127,25 @@ help:
 	@echo "  linux-menuconfig     : Configure Linux"
 	@echo "  linux-saveconfig     : Save Linux defconfig to board/$(ACTIVE_PROJECT)/linux.config"
 	@echo "  linux-rebuild        : Rebuild Linux"
-	@echo "  bootstrap            : Download buildroot source archive and extract into buildroot/"
-	@echo "  release              : Create release archive, needs environment variable RELEASE_VER"
 	@echo ""
-	@echo "  Package-Specific Targets (Dynamically Generated):"
+	@echo "Package-Specific Targets (Dynamically Generated):"
 	@$(foreach pkg,$(PACKAGE_NAMES), echo "    buildroot-$(pkg)-build    : Build package '$(pkg)'";)
 	@$(foreach pkg,$(PACKAGE_NAMES), echo "    buildroot-$(pkg)-rebuild  : Rebuild package '$(pkg)' and its dependencies";)
 	@$(foreach pkg,$(PACKAGE_NAMES), echo "    buildroot-$(pkg)-clean    : Clean package '$(pkg)' build artifacts";)
 	@$(foreach pkg,$(PACKAGE_NAMES), echo "    buildroot-$(pkg)-dirclean : Distclean package '$(pkg)'";)
 	@echo ""
+	@echo "Special Targets:"
+	@echo "  bootstrap            : Download buildroot source archive and extract into buildroot/"
+	@echo "  release              : Create release archive, needs environment variable RELEASE_VER"
 	@echo "  clean                : Clean the entire project (same as buildroot-clean)"
 	@echo "  dirclean             : Distclean the entire project (same as buildroot-dirclean)"
 	@echo "  rebuild              : Perform a dirclean followed by a full build"
 	@echo "  help                 : Display this help message"
 
-.PHONY: check-project buildroot-defconfig buildroot-menuconfig buildroot-saveconfig \
+.PHONY: check-project \
+	buildroot-defconfig buildroot-menuconfig buildroot-saveconfig \
 	buildroot-build buildroot-clean buildroot-dirclean \
 	bootstrap release \
+	linux-menuconfig linux-saveconfig linux-rebuild \
 	$(foreach pkg,$(PACKAGE_NAMES),buildroot-$(pkg)-build buildroot-$(pkg)-rebuild buildroot-$(pkg)-clean buildroot-$(pkg)-dirclean) \
 	 clean dirclean rebuild help
