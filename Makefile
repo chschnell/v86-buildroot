@@ -5,74 +5,77 @@
 # Based off: https://eerdemsimsek.medium.com/setting-up-buildroot-out-of-tree-folder-structure-for-raspberry-pi-4b-fbd9765c0206
 #
 
-# Top-level Makefile Configuration, visible to recursive invocations of make
+# Top-level public make variable definitions (visible to recursive invocations of make)
 export BR2_EXTERNAL := $(CURDIR)
-export ACTIVE_PROJECT := v86
+export ACTIVE_PROJECT ?= v86
 
-# Project Configuration
-PROJECTS_DIR := projects
-CONFIG_DIR := $(PROJECTS_DIR)/configs
+# Build Directory
+BUILDROOT_BUILD_DIR := build/$(ACTIVE_PROJECT)
 
-# Build Directories
-BUILD_DIR := build/$(ACTIVE_PROJECT)
-BUILDROOT_BUILD_DIR := $(BUILD_DIR)
+# Wrapper for recursive MAKE invocations
+MAKE_BUILDROOT = $(MAKE) -C buildroot O=../$(BUILDROOT_BUILD_DIR)
 
-# Buildroot and Linux Source Paths
-BUILDROOT_SRC_DIR := buildroot
-
-# Centralized Output Directory Option
-BUILDROOT_O_OPTION := O=../$(BUILDROOT_BUILD_DIR)
-
-# Check if ACTIVE_PROJECT is set and the config directory exists
+# Check that ACTIVE_PROJECT is set and that config file and board directory exist
 check-project:
 	@echo "Active Project: '$(ACTIVE_PROJECT)'"
 	@if [ -z "$(ACTIVE_PROJECT)" ]; then \
 	 echo "Error: ACTIVE_PROJECT environment variable is not set."; \
 	 exit 1; \
 	fi
+	@if [ ! -f "configs/$(ACTIVE_PROJECT)_defconfig" ]; then \
+	 echo "Error: file configs/$(ACTIVE_PROJECT)_defconfig not found."; \
+	 exit 1; \
+	fi
+	@if [ ! -d "board/$(ACTIVE_PROJECT)" ]; then \
+	 echo "Error: directory board/$(ACTIVE_PROJECT) not found."; \
+	 exit 1; \
+	fi
 
 # Build Targets
 all: check-project buildroot-build
 
+linux-rebuild: check-project
+	$(MAKE_BUILDROOT) linux-rebuild
+
 # Buildroot Targets
 buildroot-defconfig: check-project
-	$(MAKE) -C ${BUILDROOT_SRC_DIR} $(BUILDROOT_O_OPTION) $(ACTIVE_PROJECT)_defconfig
+	$(MAKE_BUILDROOT) $(ACTIVE_PROJECT)_defconfig
 
 buildroot-menuconfig: check-project
-	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) menuconfig
+	$(MAKE_BUILDROOT) menuconfig
 
 buildroot-saveconfig: check-project
-	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) savedefconfig
+	$(MAKE_BUILDROOT) savedefconfig
 
 buildroot-build: check-project
-	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION)
+	$(MAKE_BUILDROOT)
 
 buildroot-clean: check-project
-	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) clean
+	$(MAKE_BUILDROOT) clean
 
 buildroot-dirclean: check-project
-	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) distclean
+	$(MAKE_BUILDROOT) distclean
+
+list-defconfigs: check-project
+	$(MAKE_BUILDROOT) list-defconfigs
 
 # Linux kernel targets
 linux-menuconfig: check-project
-	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) linux-menuconfig
+	$(MAKE_BUILDROOT) linux-menuconfig
 
 linux-saveconfig: check-project
-	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) linux-savedefconfig
+	$(MAKE_BUILDROOT) linux-savedefconfig
 	cp $(BUILDROOT_BUILD_DIR)/build/linux-6.8.12/defconfig board/$(ACTIVE_PROJECT)/linux.config
-
-linux-rebuild: check-project
-	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) linux-rebuild
 
 # Busybox targets
 busybox-menuconfig: check-project
-	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) busybox-menuconfig
+	$(MAKE_BUILDROOT) busybox-menuconfig
 
 busybox-saveconfig: check-project
-	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) busybox-update-config
+	$(MAKE_BUILDROOT) busybox-update-config
 
 busybox-rebuild: check-project
-	$(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) busybox-rebuild
+	$(MAKE_BUILDROOT) busybox-rebuild
 
 # bootstrap and release special targets
 buildroot-2024.05.2.tar.gz:
@@ -91,7 +94,7 @@ release: check-project
 	 echo "Error: RELEASE_VER environment variable is not set, example: \"1.0.0\"."; \
 	 exit 1; \
 	fi
-	tar -C build/v86/images --transform='flags=r;s|bzImage|buildroot-bzimage68_v86.bin|' -cjf v86-buildroot-$(RELEASE_VER).tar.bz2 bzImage
+	tar -C build/v86/images --transform='flags=r;s|bzImage|buildroot-bzimage68_v86.bin|' -cjf v86-buildroot-$(RELEASE_VER).tar.bz2 bzImage rootfs.cpio rootfs.tar
 
 # --- Dynamic Package Targets (currently unused) ---
 
@@ -103,13 +106,13 @@ PACKAGE_NAMES := $(basename $(notdir $(PACKAGE_MK_FILES)))
 
 # Generate targets for each package
 $(foreach pkg,$(PACKAGE_NAMES),\
-	$(eval buildroot-$(pkg)-build: check-project ; $(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) $(pkg)))
+	$(eval buildroot-$(pkg)-build: check-project ; $(MAKE_BUILDROOT) $(pkg)))
 $(foreach pkg,$(PACKAGE_NAMES),\
-	$(eval buildroot-$(pkg)-rebuild: check-project ; $(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) $(pkg)-rebuild))
+	$(eval buildroot-$(pkg)-rebuild: check-project ; $(MAKE_BUILDROOT) $(pkg)-rebuild))
 $(foreach pkg,$(PACKAGE_NAMES),\
-	$(eval buildroot-$(pkg)-clean: check-project ; $(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) $(pkg)-clean))
+	$(eval buildroot-$(pkg)-clean: check-project ; $(MAKE_BUILDROOT) $(pkg)-clean))
 $(foreach pkg,$(PACKAGE_NAMES),\
-	$(eval buildroot-$(pkg)-dirclean: check-project ; $(MAKE) -C $(BUILDROOT_SRC_DIR) $(BUILDROOT_O_OPTION) $(pkg)-dirclean))
+	$(eval buildroot-$(pkg)-dirclean: check-project ; $(MAKE_BUILDROOT) $(pkg)-dirclean))
 
 # Combined Targets
 clean: check-project buildroot-clean
@@ -128,17 +131,17 @@ help:
 	@echo ""
 	@echo "Targets:"
 	@echo "  all                  : Build Buildroot, including all enabled packages"
-	@echo "  buildroot-defconfig  : Generate .config using the specified defconfig"
-	@echo "  buildroot-menuconfig : Configure Buildroot"
-	@echo "  buildroot-saveconfig : Save Buildroot defconfig"
+	@echo "  buildroot-defconfig  : Initialize Buildroot from configs/$(ACTIVE_PROJECT)_defconfig"
+	@echo "  buildroot-menuconfig : Edit Buildroot configuration"
+	@echo "  buildroot-saveconfig : Save Buildroot configuration to configs/$(ACTIVE_PROJECT)_defconfig"
 	@echo "  buildroot-build      : Build Buildroot"
 	@echo "  buildroot-clean      : Clean Buildroot build artifacts"
 	@echo "  buildroot-dirclean   : Distclean Buildroot (removes downloads and build dirs)"
-	@echo "  linux-menuconfig     : Configure Linux"
-	@echo "  linux-saveconfig     : Save Linux defconfig to board/$(ACTIVE_PROJECT)/linux.config"
+	@echo "  linux-menuconfig     : Edit Linux configuration"
+	@echo "  linux-saveconfig     : Save Linux configuration to board/$(ACTIVE_PROJECT)/linux.config"
 	@echo "  linux-rebuild        : Rebuild Linux"
-	@echo "  busybox-menuconfig   : Configure Busybox"
-	@echo "  busybox-saveconfig   : Save Busybox defconfig to board/$(ACTIVE_PROJECT)/busybox.config"
+	@echo "  busybox-menuconfig   : Edit Busybox configuration"
+	@echo "  busybox-saveconfig   : Save Busybox configuration to board/$(ACTIVE_PROJECT)/busybox.config"
 	@echo "  busybox-rebuild      : Rebuild Busybox"
 	@echo ""
 	@echo "Package-Specific Targets (Dynamically Generated):"
@@ -153,6 +156,7 @@ help:
 	@echo "  clean                : Clean the entire project (same as buildroot-clean)"
 	@echo "  dirclean             : Distclean the entire project (same as buildroot-dirclean)"
 	@echo "  rebuild              : Perform a dirclean followed by a full build"
+	@echo "  list-defconfigs      : Show the list of all Buildroot configurations"
 	@echo "  help                 : Display this help message"
 
 .PHONY: check-project \
@@ -160,6 +164,6 @@ help:
 	buildroot-build buildroot-clean buildroot-dirclean \
 	linux-menuconfig linux-saveconfig linux-rebuild \
 	busybox-menuconfig busybox-saveconfig busybox-rebuild \
-	bootstrap release \
+	bootstrap release list-defconfigs \
 	$(foreach pkg,$(PACKAGE_NAMES),buildroot-$(pkg)-build buildroot-$(pkg)-rebuild buildroot-$(pkg)-clean buildroot-$(pkg)-dirclean) \
 	 clean dirclean rebuild help
