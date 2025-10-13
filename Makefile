@@ -9,7 +9,9 @@
 export BR2_EXTERNAL := $(CURDIR)
 export ACTIVE_PROJECT ?= v86
 
-# Build Directory
+# Path variables
+BUILDROOT_DEFCONFIG_FILE := configs/$(ACTIVE_PROJECT)_defconfig
+BUILDROOT_BOARD_DIR := board/$(ACTIVE_PROJECT)
 BUILDROOT_BUILD_DIR := build/$(ACTIVE_PROJECT)
 
 # Wrapper for recursive MAKE invocations
@@ -22,12 +24,12 @@ check-project:
 	 echo "Error: ACTIVE_PROJECT environment variable is not set."; \
 	 exit 1; \
 	fi
-	@if [ ! -f "configs/$(ACTIVE_PROJECT)_defconfig" ]; then \
-	 echo "Error: file configs/$(ACTIVE_PROJECT)_defconfig not found."; \
+	@if [ ! -f "$(BUILDROOT_DEFCONFIG_FILE)" ]; then \
+	 echo "Error: file $(BUILDROOT_DEFCONFIG_FILE) not found."; \
 	 exit 1; \
 	fi
-	@if [ ! -d "board/$(ACTIVE_PROJECT)" ]; then \
-	 echo "Error: directory board/$(ACTIVE_PROJECT) not found."; \
+	@if [ ! -d "$(BUILDROOT_BOARD_DIR)" ]; then \
+	 echo "Error: directory $(BUILDROOT_BOARD_DIR) not found."; \
 	 exit 1; \
 	fi
 
@@ -39,13 +41,14 @@ list-defconfigs: check-project
 
 # Buildroot Targets
 buildroot-defconfig: check-project
-	$(MAKE_BUILDROOT) $(ACTIVE_PROJECT)_defconfig
+	$(MAKE_BUILDROOT) "$(ACTIVE_PROJECT)_defconfig"
 
 buildroot-menuconfig: check-project
 	$(MAKE_BUILDROOT) menuconfig
 
 buildroot-saveconfig: check-project
 	$(MAKE_BUILDROOT) savedefconfig
+	cp "$(BUILDROOT_BUILD_DIR)/defconfig" "$(BUILDROOT_DEFCONFIG_FILE)"
 
 buildroot-build: check-project
 	$(MAKE_BUILDROOT)
@@ -62,7 +65,7 @@ linux-menuconfig: check-project
 
 linux-saveconfig: check-project
 	$(MAKE_BUILDROOT) linux-savedefconfig
-	cp $(BUILDROOT_BUILD_DIR)/build/linux-6.8.12/defconfig board/$(ACTIVE_PROJECT)/linux.config
+	cp "$(BUILDROOT_BUILD_DIR)/build/linux-6.8.12/defconfig" "$(BUILDROOT_BOARD_DIR)/linux.config"
 
 linux-rebuild: check-project
 	$(MAKE_BUILDROOT) linux-rebuild
@@ -131,17 +134,17 @@ help:
 	@echo ""
 	@echo "Targets:"
 	@echo "  all                  : Build Buildroot, including all enabled packages"
-	@echo "  buildroot-defconfig  : Initialize Buildroot from configs/$(ACTIVE_PROJECT)_defconfig"
+	@echo "  buildroot-defconfig  : Initialize Buildroot from $(BUILDROOT_DEFCONFIG_FILE)"
 	@echo "  buildroot-menuconfig : Edit Buildroot configuration"
-	@echo "  buildroot-saveconfig : Save Buildroot configuration to configs/$(ACTIVE_PROJECT)_defconfig"
+	@echo "  buildroot-saveconfig : Save Buildroot configuration to $(BUILDROOT_DEFCONFIG_FILE)"
 	@echo "  buildroot-build      : Build Buildroot"
 	@echo "  buildroot-clean      : Clean Buildroot build artifacts"
 	@echo "  buildroot-dirclean   : Distclean Buildroot (removes downloads and build dirs)"
 	@echo "  linux-menuconfig     : Edit Linux configuration"
-	@echo "  linux-saveconfig     : Save Linux configuration to board/$(ACTIVE_PROJECT)/linux.config"
+	@echo "  linux-saveconfig     : Save Linux configuration to $(BUILDROOT_BOARD_DIR)/linux.config"
 	@echo "  linux-rebuild        : Rebuild Linux"
 	@echo "  busybox-menuconfig   : Edit Busybox configuration"
-	@echo "  busybox-saveconfig   : Save Busybox configuration to board/$(ACTIVE_PROJECT)/busybox.config"
+	@echo "  busybox-saveconfig   : Save Busybox configuration to $(BUILDROOT_BOARD_DIR)/busybox.config"
 	@echo "  busybox-rebuild      : Rebuild Busybox"
 	@echo ""
 	@echo "Package-Specific Targets (Dynamically Generated):"
