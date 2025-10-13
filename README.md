@@ -1,5 +1,5 @@
 # v86-buildroot
-Buildroot customized for the [v86 emulator](https://github.com/copy/v86/tree/master).
+[Buildroot](https://buildroot.org/) customized for the [v86 emulator](https://github.com/copy/v86/tree/master).
 
 Features:
 
@@ -52,7 +52,7 @@ make busybox-saveconfig
 
 ### Implementation
 
-The v86-buildroot top-level Makefile invokes the Buildroot Makefile such that all configuration elements are read from directories `configs/` and `board/`, and all build artifacts are written to `build/`, a so-called *out-of-tree build* because the Buildroot source tree remains untouched.
+The v86-buildroot top-level Makefile invokes the Buildroot Makefile such that all configuration elements are read from directories `configs/` and `board/`, and all build artifacts are written to `build/`, a so-called *out-of-tree build* because the Buildroot source tree remains untouched. Buildroot's *br2-external mechanism* is used for this build mode, see chapter ["9.2. Keeping customizations outside of Buildroot"](https://buildroot.org/downloads/manual/manual.html#outside-br-custom) in the Buildroot documentation for details.
 
 The Buildroot board name defined in the top-level Makefile is `v86` (stored in variable `ACTIVE_PROJECT`).
 
