@@ -32,36 +32,57 @@ make all
 
 ## Details
 
-### Configuring Buildroot and Linux
+### Configuring Buildroot, Linux and Busybox
 
 To change the configuration of Buildroot or Linux use:
 
 ```bash
 make buildroot-menuconfig
 make linux-menuconfig
+make busybox-menuconfig
 ```
 
 To save configurations use:
 
 ```bash
 make buildroot-saveconfig
-make linux-savedefconfig
+make busybox-saveconfig
+make busybox-saveconfig
 ```
 
 ### Implementation
 
-* directories:
-  * buildroot source directory (created by `make bootstrap`): `buildroot/`
-  * customization directories: `board/` and `configs/`
-  * build directory (created by `make`): `build/`
-* the Buildroot board name used is **`v86`** (stored in `ACTIVE_PROJECT` in the top-level Makefile)
-* the Buildroot `.config` file is `configs/v86_defconfig`, it defines:
-  * the Linux `.config` file as `board/v86/linux.config`
-  * the Busybox `.config` file as `board/v86/busybox.config`
-  * the root file system overlay as the tree below `board/v86/rootfs_overlay/`
-* files `Config.in`, `external.desc` and `external.mk` are required by Buildroot for an out-of-tree build
+The v86-buildroot top-level Makefile invokes the Buildroot Makefile such that all configuration elements are read from directories `configs/` and `board/`, and all build artifacts are written to `build/`, a so-called *out-of-tree build* because the Buildroot source tree remains untouched.
+
+The Buildroot board name defined in the top-level Makefile is `v86` (stored in variable `ACTIVE_PROJECT`).
+
+Directory layout overview (after running `make buildroot-defconfig`):
+
+```
+v86-buildroot
+├── board
+│   └── v86
+│       ├── busybox.config  // Busybox .config
+│       ├── linux.config    // Linux .config
+│       └── rootfs_overlay  // Overlay file system root
+│           └── ...
+├── build                   // Build directory (created by Makefile)
+│   └── v86
+│       └── ...
+├── buildroot               // Buildroot source directory (created by Makefile)
+│   └── ...
+├── configs
+│   └── v86_defconfig       // Buildroot .config
+├── Config.in               // Buildroot out-of-tree build requirement (empty)
+├── external.desc           // Buildroot out-of-tree build description file
+├── external.mk             // Buildroot out-of-tree build requirement (empty)
+├── LICENSE
+├── Makefile                // Top-level Makefile
+└── README.md
+```
 
 ## Links
 
 * [The Buildroot user manual](https://buildroot.org/downloads/manual/manual.html)
-* [Setting-up Buildroot Out of Tree Folder Structure](https://eerdemsimsek.medium.com/setting-up-buildroot-out-of-tree-folder-structure-for-raspberry-pi-4b-fbd9765c0206)
+* [Setting-up Buildroot Out of Tree Folder Structure](https://eerdemsimsek.medium.com/setting-up-buildroot-out-of-tree-folder-structure-for-raspberry-pi-4b-fbd9765c0206) (root of the top-level Makefile)
+* [Config used for buildroot image](https://github.com/copy/v86/issues/725) (root of the v86 customizations)
