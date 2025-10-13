@@ -5,17 +5,17 @@
 # Based off: https://eerdemsimsek.medium.com/setting-up-buildroot-out-of-tree-folder-structure-for-raspberry-pi-4b-fbd9765c0206
 #
 
-# Top-level public make variable definitions (visible to recursive invocations of make)
+# Define top-level public make variables (visible to recursive invocations of make)
 export BR2_EXTERNAL := $(CURDIR)
 export ACTIVE_PROJECT ?= v86
 
-# Path variables
-BUILDROOT_DEFCONFIG_FILE := configs/$(ACTIVE_PROJECT)_defconfig
-BUILDROOT_BOARD_DIR := board/$(ACTIVE_PROJECT)
-BUILDROOT_BUILD_DIR := build/$(ACTIVE_PROJECT)
+# Define project's path variables
+PROJECT_DEFCONFIG_FILE := configs/$(ACTIVE_PROJECT)_defconfig
+PROJECT_ROOT_DIR := board/$(ACTIVE_PROJECT)
+PROJECT_BUILD_DIR := build/$(ACTIVE_PROJECT)
 
 # Wrapper for recursive MAKE invocations
-MAKE_BUILDROOT = $(MAKE) -C buildroot O=../$(BUILDROOT_BUILD_DIR)
+MAKE_BUILDROOT = $(MAKE) -C buildroot O=../$(PROJECT_BUILD_DIR)
 
 # Check that ACTIVE_PROJECT is set and that config file and board directory exist
 check-project:
@@ -24,12 +24,12 @@ check-project:
 	 echo "Error: ACTIVE_PROJECT environment variable is not set."; \
 	 exit 1; \
 	fi
-	@if [ ! -f "$(BUILDROOT_DEFCONFIG_FILE)" ]; then \
-	 echo "Error: file $(BUILDROOT_DEFCONFIG_FILE) not found."; \
+	@if [ ! -f "$(PROJECT_DEFCONFIG_FILE)" ]; then \
+	 echo "Error: file $(PROJECT_DEFCONFIG_FILE) not found."; \
 	 exit 1; \
 	fi
-	@if [ ! -d "$(BUILDROOT_BOARD_DIR)" ]; then \
-	 echo "Error: directory $(BUILDROOT_BOARD_DIR) not found."; \
+	@if [ ! -d "$(PROJECT_ROOT_DIR)" ]; then \
+	 echo "Error: directory $(PROJECT_ROOT_DIR) not found."; \
 	 exit 1; \
 	fi
 
@@ -48,7 +48,7 @@ buildroot-menuconfig: check-project
 
 buildroot-saveconfig: check-project
 	$(MAKE_BUILDROOT) savedefconfig
-	cp "$(BUILDROOT_BUILD_DIR)/defconfig" "$(BUILDROOT_DEFCONFIG_FILE)"
+	cp "$(PROJECT_BUILD_DIR)/defconfig" "$(PROJECT_DEFCONFIG_FILE)"
 
 buildroot-build: check-project
 	$(MAKE_BUILDROOT)
@@ -65,7 +65,7 @@ linux-menuconfig: check-project
 
 linux-saveconfig: check-project
 	$(MAKE_BUILDROOT) linux-savedefconfig
-	cp "$(BUILDROOT_BUILD_DIR)/build/linux-6.8.12/defconfig" "$(BUILDROOT_BOARD_DIR)/linux.config"
+	cp "$(PROJECT_BUILD_DIR)/build/linux-6.8.12/defconfig" "$(PROJECT_ROOT_DIR)/linux.config"
 
 linux-rebuild: check-project
 	$(MAKE_BUILDROOT) linux-rebuild
@@ -134,17 +134,17 @@ help:
 	@echo ""
 	@echo "Targets:"
 	@echo "  all                  : Build Buildroot, including all enabled packages"
-	@echo "  buildroot-defconfig  : Initialize Buildroot from $(BUILDROOT_DEFCONFIG_FILE)"
+	@echo "  buildroot-defconfig  : Initialize Buildroot from $(PROJECT_DEFCONFIG_FILE)"
 	@echo "  buildroot-menuconfig : Edit Buildroot configuration"
-	@echo "  buildroot-saveconfig : Save Buildroot configuration to $(BUILDROOT_DEFCONFIG_FILE)"
+	@echo "  buildroot-saveconfig : Save Buildroot configuration to $(PROJECT_DEFCONFIG_FILE)"
 	@echo "  buildroot-build      : Build Buildroot"
 	@echo "  buildroot-clean      : Clean Buildroot build artifacts"
 	@echo "  buildroot-dirclean   : Distclean Buildroot (removes downloads and build dirs)"
 	@echo "  linux-menuconfig     : Edit Linux configuration"
-	@echo "  linux-saveconfig     : Save Linux configuration to $(BUILDROOT_BOARD_DIR)/linux.config"
+	@echo "  linux-saveconfig     : Save Linux configuration to $(PROJECT_ROOT_DIR)/linux.config"
 	@echo "  linux-rebuild        : Rebuild Linux"
 	@echo "  busybox-menuconfig   : Edit Busybox configuration"
-	@echo "  busybox-saveconfig   : Save Busybox configuration to $(BUILDROOT_BOARD_DIR)/busybox.config"
+	@echo "  busybox-saveconfig   : Save Busybox configuration to $(PROJECT_ROOT_DIR)/busybox.config"
 	@echo "  busybox-rebuild      : Rebuild Busybox"
 	@echo ""
 	@echo "Package-Specific Targets (Dynamically Generated):"
