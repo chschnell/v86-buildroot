@@ -34,8 +34,8 @@ check-project:
 # Build Targets
 all: check-project buildroot-build
 
-linux-rebuild: check-project
-	$(MAKE_BUILDROOT) linux-rebuild
+list-defconfigs: check-project
+	$(MAKE_BUILDROOT) list-defconfigs
 
 # Buildroot Targets
 buildroot-defconfig: check-project
@@ -56,9 +56,6 @@ buildroot-clean: check-project
 buildroot-dirclean: check-project
 	$(MAKE_BUILDROOT) distclean
 
-list-defconfigs: check-project
-	$(MAKE_BUILDROOT) list-defconfigs
-
 # Linux kernel targets
 linux-menuconfig: check-project
 	$(MAKE_BUILDROOT) linux-menuconfig
@@ -66,6 +63,9 @@ linux-menuconfig: check-project
 linux-saveconfig: check-project
 	$(MAKE_BUILDROOT) linux-savedefconfig
 	cp $(BUILDROOT_BUILD_DIR)/build/linux-6.8.12/defconfig board/$(ACTIVE_PROJECT)/linux.config
+
+linux-rebuild: check-project
+	$(MAKE_BUILDROOT) linux-rebuild
 
 # Busybox targets
 busybox-menuconfig: check-project
