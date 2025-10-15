@@ -124,7 +124,7 @@ clean: check-project buildroot-clean
 dirclean: check-project buildroot-dirclean
 	@echo "Distcleaning project..." # Informative message
 
-rebuild: dirclean buildroot-build
+rebuild: dirclean buildroot-defconfig buildroot-build
 	@echo "Rebuilding project..."
 
 # Help Target
