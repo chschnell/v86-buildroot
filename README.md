@@ -35,7 +35,7 @@ make all
 
 ### Configuring Buildroot, Linux and Busybox
 
-To change the configuration of Buildroot or Linux use:
+To edit the configurations of Buildroot, Linux or Busybox use:
 
 ```bash
 make buildroot-menuconfig
@@ -47,7 +47,7 @@ To save configurations use:
 
 ```bash
 make buildroot-saveconfig
-make busybox-saveconfig
+make linux-saveconfig
 make busybox-saveconfig
 ```
 
