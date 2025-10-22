@@ -1,0 +1,27 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Bootstrap v86-buildroot
+      run: make bootstrap
+
+    - name: Configure Buildroot
+      run: make buildroot-defconfig
+
+    - name: Build Buildroot
+      run: make all
+
+    - name: Build release archive
+      run: make release RELEASE_VER=1.0.0
