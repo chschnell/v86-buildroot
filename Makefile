@@ -48,7 +48,6 @@ buildroot-menuconfig: check-project
 
 buildroot-saveconfig: check-project
 	$(MAKE_BUILDROOT) savedefconfig
-	cp "$(PROJECT_BUILD_DIR)/defconfig" "$(PROJECT_DEFCONFIG_FILE)"
 
 buildroot-build: check-project
 	$(MAKE_BUILDROOT)
