@@ -7,6 +7,7 @@ Features:
 * Keeps Buildroot source tree, v86 customizations and build artifacts in separate directories
 * Out-of-tree build, the Buildroot source tree always remains unmodified
 * Supported v86 features include: serial0, virtio-console, virtio-net, fda, fdb, hda, hdb and cdrom
+* Supports Unicode (intended for use case serial connection with XTerm.js)
 
 ## Installation instructions
 
